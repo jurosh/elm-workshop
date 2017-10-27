@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Debug exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -59,21 +60,33 @@ elmHubHeader =
         ]
 
 
+
+-- (Debug.log "current model is" model)
+
+
 view : Model -> Html Msg
 view model =
+    let
+        filterResults list =
+            List.filter (\item -> String.contains model.query item.name) model.results
+    in
     div [ class "content" ]
         [ header []
-            [ h1 [] [ text "ElmHub" ]
+            [ h1 [] [ text ("ElmHub - Search: " ++ model.query) ]
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
         , input
             [ class "search-query"
-              -- TODO onInput, set the query in the model
+
+            -- , onInput (\text -> SetQuery text)
+            , onInput SetQuery
+
+            -- DONE onInput, set the query in the model
             , defaultValue model.query
             ]
             []
-        , button [ class "search-button" ] [ text "Search" ]
-        , ul [ class "results" ] (List.map viewSearchResult model.results)
+        , ul [ class "results" ]
+            (List.map viewSearchResult (filterResults model.results))
         ]
 
 
@@ -84,8 +97,8 @@ viewSearchResult result =
         , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button
-            -- TODO add an onClick handler that sends a DeleteById msg
-            [ class "hide-result" ]
+            -- DONE add an onClick handler that sends a DeleteById msg
+            [ class "hide-result", onClick (DeleteById result.id) ]
             [ text "X" ]
         ]
 
@@ -94,7 +107,16 @@ update : Msg -> Model -> Model
 update msg model =
     -- TODO if we get a SetQuery msg, use it to set the model's query field,
     -- and if we get a DeleteById msg, delete the appropriate result
-    model
+    let
+        throwaway =
+            Debug.log "current model is" model
+    in
+    case msg of
+        DeleteById id ->
+            { model | results = List.filter (\item -> not (item.id == id)) model.results }
+
+        SetQuery query ->
+            { model | query = query }
 
 
 main : Program Never Model Msg
