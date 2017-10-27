@@ -1,7 +1,8 @@
 module Main exposing (..)
 
+import Debug exposing (..)
 import Html exposing (..)
-import Html.Attributes exposing (class, target, href, property, defaultValue)
+import Html.Attributes exposing (class, defaultValue, href, property, target)
 import Html.Events exposing (..)
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
@@ -21,14 +22,18 @@ searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
     -- See https://developer.github.com/v3/search/#example
     -- and http://package.elm-lang.org/packages/NoRedInk/elm-decode-pipeline/latest
-    --
     -- Look in SampleResponse.elm to see the exact JSON we'll be decoding!
     --
-    -- TODO replace these calls to `hardcoded` with calls to `required`
+    -- DONE replace these calls to `hardcoded` with calls to `required`
+    --
     decode SearchResult
-        |> hardcoded 0
-        |> hardcoded ""
-        |> hardcoded 0
+        |> required "id" int
+        |> required "name" string
+        |> required "stargazers_count" int
+
+
+
+-- |> List.map (\item -> item)
 
 
 type alias Model =
@@ -60,7 +65,10 @@ responseDecoder =
 decodeResults : String -> List SearchResult
 decodeResults json =
     case decodeString responseDecoder json of
-        -- TODO add branches to this case-expression which return:
+        Ok resutlt ->
+            resutlt
+
+        -- DONE add branches to this case-expression which return:
         --
         -- * the search results, if decoding succeeded
         -- * an empty list if decoding failed
@@ -71,7 +79,9 @@ decodeResults json =
         --
         -- Ok (List SearchResult)
         -- Err String
-        _ ->
+        -- _ ->
+        --     []
+        Err err ->
             []
 
 
@@ -116,4 +126,4 @@ update msg model =
                 newResults =
                     List.filter (\{ id } -> id /= idToHide) model.results
             in
-                { model | results = newResults }
+            { model | results = newResults }

@@ -105,7 +105,7 @@ viewSearchResult result =
 
 update : Msg -> Model -> Model
 update msg model =
-    -- TODO if we get a SetQuery msg, use it to set the model's query field,
+    -- DONE if we get a SetQuery msg, use it to set the model's query field,
     -- and if we get a DeleteById msg, delete the appropriate result
     let
         throwaway =
