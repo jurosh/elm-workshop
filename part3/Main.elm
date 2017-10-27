@@ -5,6 +5,11 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 
 
+-- const pluralize = (first, seocnd) => num => doSOmthing();
+-- const pluralizeLeaves = pluralize('leafs', 'leaves');
+-- [1, 2, 3].map(pluralizeLeaves)
+
+
 initialModel =
     { query = "tutorial"
     , results =
@@ -52,16 +57,23 @@ viewSearchResult result =
         , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button
-            -- TODO add an onClick handler that sends a DELETE_BY_ID msg
-            [ class "hide-result" ]
+            -- DONE add an onClick handler that sends a DELETE_BY_ID msg
+            [ class "hide-result", onClick { operation = "DELETE_BY_ID", id = result.id } ]
             [ text "X" ]
         ]
 
 
 update msg model =
-    -- TODO if msg.operation == "DELETE_BY_ID",
+    -- DONE if msg.operation == "DELETE_BY_ID",
     -- then return a new model without the given ID present anymore.
-    model
+    let
+        removeById =
+            List.filter (\model -> not (model.id == msg.id))
+    in
+    if msg.operation == "DELETE_BY_ID" then
+        { model | results = removeById model.results }
+    else
+        model
 
 
 main =
