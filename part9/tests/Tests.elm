@@ -1,11 +1,13 @@
 module Tests exposing (..)
 
-import Test exposing (..)
-import Fuzz exposing (..)
-import Expect exposing (Expectation)
 import ElmHub exposing (responseDecoder)
-import Json.Decode exposing (decodeString, Value)
+import Expect exposing (Expectation)
+import Fuzz exposing (..)
+import Json.Decode exposing (Value, decodeString)
+import List exposing (..)
+import Random
 import String
+import Test exposing (..)
 
 
 all : Test
@@ -18,16 +20,21 @@ all =
                         """{ "pizza": [] }"""
 
                     isErrorResult result =
-                        -- TODO return True if the given Result is an Err of some sort,
+                        -- DONE return True if the given Result is an Err of some sort,
                         -- and False if it is an Ok of some sort.
                         --
                         -- Result docs: http://package.elm-lang.org/packages/elm-lang/core/latest/Result
-                        False
+                        case result of
+                            Err errro ->
+                                True
+
+                            Ok response ->
+                                False
                 in
-                    json
-                        |> decodeString responseDecoder
-                        |> isErrorResult
-                        |> Expect.true "Expected decoding an invalid response to return an Err."
+                json
+                    |> decodeString responseDecoder
+                    |> isErrorResult
+                    |> Expect.true "Expected decoding an invalid response to return an Err."
         , test "it successfully decodes a valid response" <|
             \() ->
                 """{ "items": [
@@ -43,13 +50,21 @@ all =
         , test "it decodes one SearchResult for each 'item' in the JSON" <|
             \() ->
                 let
-                    -- TODO convert this to a fuzz test that generates a random
+                    -- DONE convert this to a fuzz test that generates a random
                     -- list of ids instead of this hardcoded list of three ids.
                     --
                     -- fuzz test docs: http://package.elm-lang.org/packages/elm-community/elm-test/latest/Test#fuzz
                     -- Fuzzer docs: http://package.elm-lang.org/packages/project-fuzzball/test/6.0.0
+                    randomArrayLength =
+                        Random.int 1 50
+
+                    randomVal =
+                        \_ ->
+                            Random.int 0 99999
+
                     ids =
-                        [ 12, 5, 76 ]
+                        -- TODO
+                        List.map randomVal (range 0 randomArrayLength)
 
                     jsonFromId id =
                         """{"id": """ ++ toString id ++ """, "full_name": "foo", "stargazers_count": 42}"""
@@ -60,11 +75,11 @@ all =
                     json =
                         """{ "items": [""" ++ jsonItems ++ """] }"""
                 in
-                    case decodeString responseDecoder json of
-                        Ok results ->
-                            List.length results
-                                |> Expect.equal (List.length ids)
+                case decodeString responseDecoder json of
+                    Ok results ->
+                        List.length results
+                            |> Expect.equal (List.length ids)
 
-                        Err err ->
-                            Expect.fail ("JSON decoding failed unexpectedly: " ++ err)
+                    Err err ->
+                        Expect.fail ("JSON decoding failed unexpectedly: " ++ err)
         ]
