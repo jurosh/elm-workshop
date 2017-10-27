@@ -32,10 +32,6 @@ searchResultDecoder =
         |> required "stargazers_count" int
 
 
-
--- |> List.map (\item -> item)
-
-
 type alias Model =
     { query : String
     , results : List SearchResult
@@ -65,8 +61,8 @@ responseDecoder =
 decodeResults : String -> List SearchResult
 decodeResults json =
     case decodeString responseDecoder json of
-        Ok resutlt ->
-            resutlt
+        Ok result ->
+            result
 
         -- DONE add branches to this case-expression which return:
         --
