@@ -139,7 +139,7 @@ update msg model =
                             -- ( { model | errorMessage = Just errorMessage }, Cmd.none )
                             ( { model | errorMessage = Just "Sorry, something is very wrong!" }, Cmd.none )
 
-                        -- TODO if decoding failed, store the message in model.errorMessage
+                        -- DONE if decoding failed, store the message in model.errorMessage
                         --
                         -- HINT 1: Remember, model.errorMessage is a Maybe String - so it
                         -- can only be set to either Nothing or (Just "some string here")

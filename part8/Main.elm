@@ -1,11 +1,10 @@
 port module Main exposing (..)
 
-import Json.Decode exposing (..)
-import Html exposing (..)
-import Html.Attributes exposing (class, target, href, property, defaultValue)
-import Html.Events exposing (..)
 import Auth
-import Json.Decode exposing (Decoder)
+import Html exposing (..)
+import Html.Attributes exposing (class, defaultValue, href, property, target)
+import Html.Events exposing (..)
+import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
 
 
@@ -123,7 +122,7 @@ update msg model =
                 newModel =
                     { model | results = newResults }
             in
-                ( newModel, Cmd.none )
+            ( newModel, Cmd.none )
 
 
 type Msg
@@ -136,11 +135,24 @@ type Msg
 
 decodeResponse : Value -> Msg
 decodeResponse json =
-    -- TODO use decodeValue to decode the response into a Msg.
+    let
+        doDaco =
+            decodeValue responseDecoder json
+    in
+    -- DONE use decodeValue to decode the response into a Msg.
     --
     -- Hint: look at the definition of Msg and
     -- the definition of responseDecoder
-    HandleSearchError (Just "TODO decode the response!")
+    HandleSearchError
+        (Just
+            (case doDaco of
+                Ok text ->
+                    toString text
+
+                Err error ->
+                    error
+            )
+        )
 
 
 port githubSearch : String -> Cmd msg
